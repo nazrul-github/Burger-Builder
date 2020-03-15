@@ -1,5 +1,6 @@
 import React, { useContext } from "react";
 // import React from "react";
+import PropTypes from "prop-types";
 import classes from "./BuildControl.module.css";
 import IngridientContext from "../../../../Context/IngridientContext";
 
@@ -21,6 +22,12 @@ const BuildControl = props => {
       </button>
     </div>
   );
+};
+
+BuildControl.propTypes = {
+  removeIngridient: PropTypes.func.isRequired,
+  addIngridient: PropTypes.func.isRequired,
+  emptyIngridients: PropTypes.bool.isRequired
 };
 
 export default BuildControl;
