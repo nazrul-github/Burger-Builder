@@ -1,14 +1,12 @@
 import React, { Component } from "react";
-import Layout from "./HOC/Layouts/Layout";
-import BurgerBuilder from "./Containers/BurgerBuilder/BurgerBuilder";
+import { BrowserRouter } from "react-router-dom";
+import Home from "./HOC/Home";
 
 export class App extends Component {
   render() {
     return (
       <div>
-        <Layout>
-          <BurgerBuilder />
-        </Layout>
+        <Home />
       </div>
     );
   }

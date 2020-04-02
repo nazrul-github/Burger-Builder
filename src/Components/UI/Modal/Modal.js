@@ -14,7 +14,7 @@ export class Modal extends Component {
   render() {
     return (
       <Wrapper>
-        <Backdrop show={this.props.show} clicked={this.props. } />
+        <Backdrop show={this.props.show} clicked={this.props.modalClosed} />
         <div
           className={classes.Modal}
           style={{

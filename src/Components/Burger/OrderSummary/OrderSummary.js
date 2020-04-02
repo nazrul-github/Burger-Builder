@@ -1,9 +1,15 @@
 import React, { Component } from "react";
 import Wrapper from "../../../HOC/Wrapper";
 import Button from "../../UI/Button/Button";
+import { Route } from "react-router-dom";
+import Checkout from "../../../Containers/Checkout/Checkout";
 
 export class OrderSummary extends Component {
   //this could be a functional component
+
+  componentDidMount() {
+    console.log(this.props);
+  }
 
   render() {
     const ingridientsSummary = Object.keys(this.props.ingridients).map(

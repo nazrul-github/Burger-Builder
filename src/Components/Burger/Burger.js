@@ -1,11 +1,12 @@
 import React from "react";
 import classes from "./Burger.module.css";
 import BurgerIngridient from "./BurgerIngredient/BurgerIngridient";
+import PropTypes from "prop-types";
 
-const burger = props => {
-  let transformedIngridients = Object.keys(props.ingridients)
+const Burger = ({ ingridients }) => {
+  let transformedIngridients = Object.keys(ingridients)
     .map(igKey => {
-      return [...Array(props.ingridients[igKey])].map((_, i) => {
+      return [...Array(ingridients[igKey])].map((_, i) => {
         return <BurgerIngridient key={igKey + i} type={igKey} />;
       });
     })
@@ -25,5 +26,7 @@ const burger = props => {
     </div>
   );
 };
-
-export default burger;
+Burger.propTypes = {
+  ingridients: PropTypes.object.isRequired
+};
+export default Burger;

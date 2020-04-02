@@ -8,6 +8,8 @@ import OrderSummary from "../../Components/Burger/OrderSummary/OrderSummary";
 import axios from "../../axios-orders";
 import Spinner from "../../Components/UI/Spinner/Spinner";
 import withErrorHandler from "../../HOC/withErrorHandler/WithErrorHandler";
+import { Route, Switch } from "react-router-dom";
+import Checkout from "../Checkout/Checkout";
 
 const INGRIDIENT_PRICES = {
   salad: 0.5,
@@ -64,37 +66,46 @@ export class BurgerBuilder extends Component {
   };
 
   purchaseHandler = () => {
-    this.setState({ purchasing: true });
+    this.setState({
+      purchasing: true
+    });
+    this.props.history.push({
+      pathname: this.props.match.url + "/order-total"
+    });
   };
 
   purchaseCancelHandler = () => {
+    this.props.history.push("/burger-builder");
     this.setState({ purchasing: false });
   };
 
   purchaseContinueHandler = () => {
-    this.setState({ loading: true });
-    const order = {
-      ingridients: this.state.ingridients,
-      price: this.state.totalPrice,
-      customer: {
-        name: "Robin",
-        address: "Paik Para",
-        zipCode: "1216",
-        country: "Germany"
-      },
-      email: "test@test.com",
-      deliveryMethod: "fastest"
-    };
-    axios
-      .post("/orders.json", order)
-      .then(response => {
-        console.log(response);
-        this.setState({ loading: false, purchasing: false });
-      })
-      .catch(err => {
-        console.log(err);
-        this.setState({ loading: false, purchasing: false });
-      });
+    this.setState({ purchasing: false });
+    this.props.history.push("/checkout");
+
+    // this.setState({ loading: true });
+    // const order = {
+    //   ingridients: this.state.ingridients,
+    //   price: this.state.totalPrice,
+    //   customer: {
+    //     name: "Robin",
+    //     address: "Paik Para",
+    //     zipCode: "1216",
+    //     country: "Germany"
+    //   },
+    //   email: "test@test.com",
+    //   deliveryMethod: "fastest"
+    // };
+    // axios
+    //   .post("/orders.json", order)
+    //   .then(response => {
+    //     console.log(response);
+    //     this.setState({ loading: false, purchasing: false });
+    //   })
+    //   .catch(err => {
+    //     console.log(err);
+    //     this.setState({ loading: false, purchasing: false });
+    //   });
 
     // alert("Your order has been placed");
   };
@@ -167,10 +178,30 @@ export class BurgerBuilder extends Component {
           show={this.state.purchasing}
           modalClosed={this.purchaseCancelHandler}
         >
-          {orderSummary}
+          {/* {orderSummary} */}
+          <Route
+            path={this.props.match.url + "/order-total"}
+            render={props => (
+              <OrderSummary
+                ingridients={this.state.ingridients}
+                cancel={this.purchaseCancelHandler}
+                continue={this.purchaseContinueHandler}
+                {...props}
+              />
+            )}
+          />
         </Modal>
         {isIngridientAvailable}
         {/* </IngridientContext.Provider> */}
+        <Switch>
+          {/* <Route
+            path={this.props.match.url + "/checkout"}
+            exact
+            render={props => (
+              <Checkout {...props} ingridients={this.state.ingridients} />
+            )}
+          /> */}
+        </Switch>
       </Wrapper>
     );
   }
