@@ -3,16 +3,24 @@ import CheckoutSummary from "../../Components/Order/CheckoutSummary/CheckoutSumm
 
 export class Checkout extends Component {
   state = {
-    ingridients: { salad: 1, meat: 1, cheese: 1, bacon: 1 }
+    ingridients: { salad: 1, meat: 1, cheese: 1, bacon: 1 },
   };
   checkoutCancelledHandler = () => {
     this.props.history.push("/burger-builder");
   };
+
   checkoutContinuedHandler = () => {
     this.props.history.push("/checkout/contact-details");
   };
+
   componentDidMount() {
-    console.log(this.props);
+    const ingridients = [];
+    const query = new URLSearchParams(this.props.location.search);
+    for (const q of query.entries()) {
+      //[salad,1]
+      ingridients[q[0]] = +[q[1]];
+    }
+    this.setState({ ingridients: ingridients });
   }
 
   render() {

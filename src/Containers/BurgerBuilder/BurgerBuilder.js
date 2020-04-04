@@ -15,7 +15,7 @@ const INGRIDIENT_PRICES = {
   salad: 0.5,
   cheese: 0.4,
   meat: 1.3,
-  bacon: 0.7
+  bacon: 0.7,
 };
 
 export class BurgerBuilder extends Component {
@@ -25,23 +25,23 @@ export class BurgerBuilder extends Component {
     purchasable: false,
     purchasing: false,
     loading: false,
-    error: false
+    error: false,
   };
 
   componentDidMount() {
     axios
       .get("/ingridients.json")
-      .then(res => {
+      .then((res) => {
         this.setState({ ingridients: res.data });
       })
-      .catch(err => {
+      .catch((err) => {
         this.setState({ error: true });
       });
   }
 
-  addIngridientHandler = type => {
+  addIngridientHandler = (type) => {
     const updatedIngridients = {
-      ...this.state.ingridients
+      ...this.state.ingridients,
     };
     updatedIngridients[type] += 1;
     const priceAddition = INGRIDIENT_PRICES[type];
@@ -51,9 +51,9 @@ export class BurgerBuilder extends Component {
     this.updatePurchaseState(updatedIngridients);
   };
 
-  removeIngridientHandler = type => {
+  removeIngridientHandler = (type) => {
     const updatedIngridients = {
-      ...this.state.ingridients
+      ...this.state.ingridients,
     };
     if (updatedIngridients[type] > 0) {
       updatedIngridients[type] -= 1;
@@ -67,10 +67,10 @@ export class BurgerBuilder extends Component {
 
   purchaseHandler = () => {
     this.setState({
-      purchasing: true
+      purchasing: true,
     });
     this.props.history.push({
-      pathname: this.props.match.url + "/order-total"
+      pathname: this.props.match.url + "/order-total",
     });
   };
 
@@ -80,8 +80,20 @@ export class BurgerBuilder extends Component {
   };
 
   purchaseContinueHandler = () => {
-    this.setState({ purchasing: false });
-    this.props.history.push("/checkout");
+    const queries = [];
+
+    for (const Ingridient in this.state.ingridients) {
+      queries.push(
+        encodeURIComponent(Ingridient) +
+          "=" +
+          encodeURIComponent(this.state.ingridients[Ingridient])
+      );
+    }
+    const query = queries.join("&");
+    this.props.history.push({
+      pathname: "/checkout",
+      search: "?" + query,
+    });
 
     // this.setState({ loading: true });
     // const order = {
@@ -110,9 +122,9 @@ export class BurgerBuilder extends Component {
     // alert("Your order has been placed");
   };
 
-  updatePurchaseState = ingridients => {
+  updatePurchaseState = (ingridients) => {
     const sum = Object.keys(ingridients)
-      .map(key => {
+      .map((key) => {
         return ingridients[key];
       })
       .reduce((sum, el) => {
@@ -124,7 +136,7 @@ export class BurgerBuilder extends Component {
 
   render() {
     const allIngridients = {
-      ...this.state.ingridients
+      ...this.state.ingridients,
     };
     const emptyIngridients = [];
     for (const key in allIngridients) {
@@ -181,7 +193,7 @@ export class BurgerBuilder extends Component {
           {/* {orderSummary} */}
           <Route
             path={this.props.match.url + "/order-total"}
-            render={props => (
+            render={(props) => (
               <OrderSummary
                 ingridients={this.state.ingridients}
                 cancel={this.purchaseCancelHandler}
