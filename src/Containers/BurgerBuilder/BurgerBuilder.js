@@ -69,13 +69,10 @@ export class BurgerBuilder extends Component {
     this.setState({
       purchasing: true,
     });
-    this.props.history.push({
-      pathname: this.props.match.url + "/order-total",
-    });
   };
 
   purchaseCancelHandler = () => {
-    this.props.history.push("/burger-builder");
+    this.props.history.push("/");
     this.setState({ purchasing: false });
   };
 
@@ -89,6 +86,11 @@ export class BurgerBuilder extends Component {
           encodeURIComponent(this.state.ingridients[Ingridient])
       );
     }
+    queries.push(
+      encodeURIComponent("totalPrice") +
+        "=" +
+        encodeURIComponent(this.state.totalPrice.toFixed(2))
+    );
     const query = queries.join("&");
     this.props.history.push({
       pathname: "/checkout",
@@ -190,18 +192,7 @@ export class BurgerBuilder extends Component {
           show={this.state.purchasing}
           modalClosed={this.purchaseCancelHandler}
         >
-          {/* {orderSummary} */}
-          <Route
-            path={this.props.match.url + "/order-total"}
-            render={(props) => (
-              <OrderSummary
-                ingridients={this.state.ingridients}
-                cancel={this.purchaseCancelHandler}
-                continue={this.purchaseContinueHandler}
-                {...props}
-              />
-            )}
-          />
+          {orderSummary}
         </Modal>
         {isIngridientAvailable}
         {/* </IngridientContext.Provider> */}

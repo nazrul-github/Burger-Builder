@@ -7,19 +7,13 @@ const navigationItems = () => {
   return (
     <ul className={styles.NavigationItems}>
       <li className={classes.NavigationItem}>
-        <NavLink
-          to={{ pathname: "/burger-builder" }}
-          activeClassName={classes.active}
-        >
+        <NavLink to={{ pathname: "/" }} exact activeClassName={classes.active}>
           Burger Builder
         </NavLink>
       </li>
       <li className={classes.NavigationItem}>
-        <NavLink
-          to={{ pathname: "/checkout" }}
-          activeClassName={classes.active}
-        >
-          Checkout
+        <NavLink to={{ pathname: "/orders" }} activeClassName={classes.active}>
+          Orders
         </NavLink>
       </li>
     </ul>
