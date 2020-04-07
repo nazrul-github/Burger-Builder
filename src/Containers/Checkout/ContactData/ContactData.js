@@ -4,16 +4,82 @@ import Button from "../../../Components/UI/Button/Button";
 import classes from "./ContactData.module.css";
 import Spinner from "../../../Components/UI/Spinner/Spinner";
 import axios from "../../../axios-orders";
+import Input from "../../../Components/UI/Input/Input";
 
 export class ContactData extends Component {
   state = {
-    name: "",
-    email: "",
-    address: {
-      street: "",
-      postalCode: "",
+    value: "Hi",
+    orderForm: {
+      name: {
+        elementType: "input",
+        elementConfig: {
+          type: "text",
+          placeholder: "Your Name",
+        },
+        value: "",
+      },
+      email: {
+        elementType: "input",
+        elementConfig: {
+          type: "email",
+          placeholder: "Your Email",
+        },
+        value: "",
+      },
+      street: {
+        elementType: "input",
+        elementConfig: {
+          type: "text",
+          placeholder: "Street",
+        },
+        value: "",
+      },
+      zipCode: {
+        elementType: "input",
+        elementConfig: {
+          type: "text",
+          placeholder: "Zip Code",
+        },
+        value: "",
+      },
+      country: {
+        elementType: "input",
+        elementConfig: {
+          type: "text",
+          placeholder: "Country",
+        },
+        value: "",
+      },
+      postalCode: {
+        elementType: "input",
+        elementConfig: {
+          type: "text",
+          placeholder: "Postal Code",
+        },
+        value: "",
+      },
+      deliveryMethod: {
+        elementType: "select",
+        elementConfig: [
+          { value: "fastest", displayValue: "Fastest" },
+          { value: "cheapest", displayValue: "Cheapest" },
+        ],
+      },
+      loading: false,
     },
-    loading: false,
+  };
+
+  formObjectType = function ({ elementType, type, placeholder, value }) {
+    let formObjectTypo = {
+      elementType: elementType,
+      elementConfig: {
+        type: type,
+        placeholder: placeholder,
+      },
+      value: value,
+    };
+
+    return formObjectTypo;
   };
 
   orderHandler = (event) => {
@@ -60,41 +126,31 @@ export class ContactData extends Component {
   };
 
   render() {
+    const formElementsArray = [];
+    for (const key in this.state.orderForm) {
+      formElementsArray.push({
+        id: key,
+        config: this.state.orderForm[key],
+      });
+    }
     let loading = <Spinner />;
+
     return this.state.loading ? (
       loading
     ) : (
       <div className={classes.ContactData}>
         <h4>Enter your contact data</h4>
         <form action="">
-          <input
-            type="text"
-            name="name"
-            id=""
-            onChange={this.handleChange}
-            placeholder="yourName"
-          />
-          <input
-            type="email"
-            name="email"
-            onChange={this.handleChange}
-            placeholder="Your email"
-            id=""
-          />
-          <input
-            type="text"
-            name="street"
-            onChange={this.handleObjectChange}
-            placeholder="Street"
-            id=""
-          />
-          <input
-            type="text"
-            name="postalCode"
-            onChange={this.handleObjectChange}
-            placeholder="Postal Code"
-            id=""
-          />
+          {formElementsArray.map((vl, ind) => {
+            return (
+              <Input
+                key={vl.id}
+                elementType={vl.config.elementType}
+                elementConfig={vl.config.elementConfig}
+                value={vl.config.value}
+              />
+            );
+          })}
           <Button btnType="Success" clicked={this.orderHandler}>
             Order Now
           </Button>
