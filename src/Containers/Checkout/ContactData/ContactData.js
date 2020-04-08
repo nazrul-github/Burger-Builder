@@ -8,7 +8,6 @@ import Input from "../../../Components/UI/Input/Input";
 
 export class ContactData extends Component {
   state = {
-    value: "Hi",
     orderForm: {
       name: {
         elementType: "input",
@@ -17,6 +16,11 @@ export class ContactData extends Component {
           placeholder: "Your Name",
         },
         value: "",
+        validation: {
+          required: true,
+        },
+        valid: false,
+        touched: false,
       },
       email: {
         elementType: "input",
@@ -25,6 +29,11 @@ export class ContactData extends Component {
           placeholder: "Your Email",
         },
         value: "",
+        validation: {
+          required: true,
+        },
+        valid: false,
+        touched: false,
       },
       street: {
         elementType: "input",
@@ -33,6 +42,11 @@ export class ContactData extends Component {
           placeholder: "Street",
         },
         value: "",
+        validation: {
+          required: true,
+        },
+        valid: false,
+        touched: false,
       },
       zipCode: {
         elementType: "input",
@@ -41,6 +55,13 @@ export class ContactData extends Component {
           placeholder: "Zip Code",
         },
         value: "",
+        validation: {
+          required: true,
+          minLength: 3,
+          maxLength: 5,
+        },
+        valid: false,
+        touched: false,
       },
       country: {
         elementType: "input",
@@ -49,6 +70,11 @@ export class ContactData extends Component {
           placeholder: "Country",
         },
         value: "",
+        validation: {
+          required: true,
+        },
+        valid: false,
+        touched: false,
       },
       postalCode: {
         elementType: "input",
@@ -57,72 +83,95 @@ export class ContactData extends Component {
           placeholder: "Postal Code",
         },
         value: "",
+        validation: {
+          required: true,
+        },
+        valid: false,
+        touched: false,
       },
       deliveryMethod: {
         elementType: "select",
-        elementConfig: [
-          { value: "fastest", displayValue: "Fastest" },
-          { value: "cheapest", displayValue: "Cheapest" },
-        ],
+        elementConfig: {
+          options: [
+            { value: "fastest", displayValue: "Fastest" },
+            { value: "cheapest", displayValue: "Cheapest" },
+          ],
+        },
+        validation:{},
+        value: "fastest",
+        valid: true,
       },
-      loading: false,
     },
+    loading: false,
+    isFormValid: false,
   };
 
-  formObjectType = function ({ elementType, type, placeholder, value }) {
-    let formObjectTypo = {
-      elementType: elementType,
-      elementConfig: {
-        type: type,
-        placeholder: placeholder,
-      },
-      value: value,
-    };
-
-    return formObjectTypo;
+  checkValidity = (value, rules) => {
+    let isValid = true;
+    if (!rules) {
+      return true;
+    }
+    if (rules.required) {
+      isValid = value.trim() !== "" && isValid;
+    }
+    if (rules.minLength) {
+      isValid = value.length >= rules.minLength && isValid;
+    }
+    if (rules.maxLength) {
+      isValid = value.length <= rules.maxLength && isValid;
+    }
+    return isValid;
   };
 
   orderHandler = (event) => {
-    event.preventDefault();
+    if (this.state.isFormValid) {
+      event.preventDefault();
     this.setState({ loading: true });
-    const post = {
-      name: this.state.name,
-      email: this.state.email,
-      address: {
-        street: this.state.address.street,
-        postalCode: this.state.address.postalCode,
-      },
+    const formData = {};
+    for (const key in this.state.orderForm) {
+      formData[key] = this.state.orderForm[key].value;
+    }
+    const order = {
       totalPrice: this.props.totalPrice,
       ingridients: this.props.ingridients,
+      orderData: formData,
     };
-    console.log(post);
     axios
-      .post("/orders.json", post)
+      .post("/orders.json", order)
       .then((resp) => {
         alert("order created successfully");
         this.props.history.push("/");
       })
       .catch((err) => console.log(err));
+    }
+    else {
+      alert("Form is not valid"); 
+    }
   };
 
-  handleChange = (event) => {
-    const target = event.target;
-    const name = target.name;
-    const value = target.value;
-    this.setState({ [name]: value });
-  };
+  handleChange = (event, inputIdentifier) => {
+    const value = event.target.value;
 
-  handleObjectChange = (event) => {
-    const target = event.target;
-    const name = target.name;
-    const value = target.value;
-    this.setState((state, props) => {
-      const address = { ...state.address };
-      address[name] = value;
-      return {
-        address,
-      };
-    });
+    //First we copied the main object
+    const updatedOrderForm = { ...this.state.orderForm };
+
+    //than we copied the main objects nested object(if we don't do it like this then our nested objects won't get copied && if we have any other nested object we will have to copy them too via this.)
+    const identityFormItems = { ...updatedOrderForm[inputIdentifier] };
+    identityFormItems.value = value;
+    identityFormItems.touched = true;
+    identityFormItems.valid = this.checkValidity(
+      identityFormItems.value,
+      identityFormItems.validation
+    );
+    updatedOrderForm[inputIdentifier] = identityFormItems;
+
+    let formIsValid = true;
+    for (const key in updatedOrderForm) {
+      formIsValid = updatedOrderForm[key].valid && formIsValid;
+    }
+    console.log(updatedOrderForm);
+
+    this.setState({ orderForm: updatedOrderForm, isFormValid: formIsValid });
   };
 
   render() {
@@ -140,7 +189,7 @@ export class ContactData extends Component {
     ) : (
       <div className={classes.ContactData}>
         <h4>Enter your contact data</h4>
-        <form action="">
+        <form onSubmit={this.orderHandler}>
           {formElementsArray.map((vl, ind) => {
             return (
               <Input
@@ -148,10 +197,14 @@ export class ContactData extends Component {
                 elementType={vl.config.elementType}
                 elementConfig={vl.config.elementConfig}
                 value={vl.config.value}
+                handleChanged={(event) => this.handleChange(event, vl.id)}
+                invalid={!vl.config.valid}
+                shouldValidate={vl.config.validation}
+                touched={vl.config.touched}
               />
             );
           })}
-          <Button btnType="Success" clicked={this.orderHandler}>
+          <Button btnType="Success" disabled={!this.state.isFormValid}>
             Order Now
           </Button>
         </form>
@@ -159,9 +212,5 @@ export class ContactData extends Component {
     );
   }
 }
-ContactData.propType = {
-  ingridients: PropTypes.object,
-  totalPrice: PropTypes.number,
-};
 
 export default ContactData;
