@@ -1,9 +1,12 @@
 import React, { Component } from "react";
 import { BrowserRouter } from "react-router-dom";
 import Home from "./HOC/Home";
+import { connect } from "react-redux";
 
 export class App extends Component {
-  componentDidMount() {}
+  componentDidMount() {
+    // console.log(this.props.ing);
+  }
 
   render() {
     return (
@@ -14,4 +17,10 @@ export class App extends Component {
   }
 }
 
-export default App;
+const mapStateToProps = (state) => {
+  return {
+    ing: state.ingridients,
+  };
+};
+
+export default connect(mapStateToProps)(App);

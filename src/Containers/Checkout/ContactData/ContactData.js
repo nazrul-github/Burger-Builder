@@ -5,103 +5,11 @@ import classes from "./ContactData.module.css";
 import Spinner from "../../../Components/UI/Spinner/Spinner";
 import axios from "../../../axios-orders";
 import Input from "../../../Components/UI/Input/Input";
+import { connect } from "react-redux";
+import * as actionTypes from "../../../store/actions";
 
 export class ContactData extends Component {
   state = {
-    orderForm: {
-      name: {
-        elementType: "input",
-        elementConfig: {
-          type: "text",
-          placeholder: "Your Name",
-        },
-        value: "",
-        validation: {
-          required: true,
-        },
-        valid: false,
-        touched: false,
-      },
-      email: {
-        elementType: "input",
-        elementConfig: {
-          type: "email",
-          placeholder: "Your Email",
-        },
-        value: "",
-        validation: {
-          required: true,
-        },
-        valid: false,
-        touched: false,
-      },
-      street: {
-        elementType: "input",
-        elementConfig: {
-          type: "text",
-          placeholder: "Street",
-        },
-        value: "",
-        validation: {
-          required: true,
-        },
-        valid: false,
-        touched: false,
-      },
-      zipCode: {
-        elementType: "input",
-        elementConfig: {
-          type: "text",
-          placeholder: "Zip Code",
-        },
-        value: "",
-        validation: {
-          required: true,
-          minLength: 3,
-          maxLength: 5,
-        },
-        valid: false,
-        touched: false,
-      },
-      country: {
-        elementType: "input",
-        elementConfig: {
-          type: "text",
-          placeholder: "Country",
-        },
-        value: "",
-        validation: {
-          required: true,
-        },
-        valid: false,
-        touched: false,
-      },
-      postalCode: {
-        elementType: "input",
-        elementConfig: {
-          type: "text",
-          placeholder: "Postal Code",
-        },
-        value: "",
-        validation: {
-          required: true,
-        },
-        valid: false,
-        touched: false,
-      },
-      deliveryMethod: {
-        elementType: "select",
-        elementConfig: {
-          options: [
-            { value: "fastest", displayValue: "Fastest" },
-            { value: "cheapest", displayValue: "Cheapest" },
-          ],
-        },
-        validation:{},
-        value: "fastest",
-        valid: true,
-      },
-    },
     loading: false,
     isFormValid: false,
   };
@@ -126,26 +34,25 @@ export class ContactData extends Component {
   orderHandler = (event) => {
     if (this.state.isFormValid) {
       event.preventDefault();
-    this.setState({ loading: true });
-    const formData = {};
-    for (const key in this.state.orderForm) {
-      formData[key] = this.state.orderForm[key].value;
-    }
-    const order = {
-      totalPrice: this.props.totalPrice,
-      ingridients: this.props.ingridients,
-      orderData: formData,
-    };
-    axios
-      .post("/orders.json", order)
-      .then((resp) => {
-        alert("order created successfully");
-        this.props.history.push("/");
-      })
-      .catch((err) => console.log(err));
-    }
-    else {
-      alert("Form is not valid"); 
+      this.setState({ loading: true });
+      const formData = {};
+      for (const key in this.props.orderForm) {
+        formData[key] = this.props.orderForm[key].value;
+      }
+      const order = {
+        totalPrice: this.props.totalPrice,
+        ingridients: this.props.ingridients,
+        orderData: formData,
+      };
+      axios
+        .post("/orders.json", order)
+        .then((resp) => {
+          alert("order created successfully");
+          this.props.history.push("/");
+        })
+        .catch((err) => console.log(err));
+    } else {
+      alert("Form is not valid");
     }
   };
 
@@ -153,7 +60,7 @@ export class ContactData extends Component {
     const value = event.target.value;
 
     //First we copied the main object
-    const updatedOrderForm = { ...this.state.orderForm };
+    const updatedOrderForm = { ...this.props.orderForm };
 
     //than we copied the main objects nested object(if we don't do it like this then our nested objects won't get copied && if we have any other nested object we will have to copy them too via this.)
     const identityFormItems = { ...updatedOrderForm[inputIdentifier] };
@@ -169,17 +76,16 @@ export class ContactData extends Component {
     for (const key in updatedOrderForm) {
       formIsValid = updatedOrderForm[key].valid && formIsValid;
     }
-    console.log(updatedOrderForm);
-
-    this.setState({ orderForm: updatedOrderForm, isFormValid: formIsValid });
+    this.props.anOrderForm(updatedOrderForm);
+    this.setState({ isFormValid: formIsValid });
   };
 
   render() {
     const formElementsArray = [];
-    for (const key in this.state.orderForm) {
+    for (const key in this.props.orderForm) {
       formElementsArray.push({
         id: key,
-        config: this.state.orderForm[key],
+        config: this.props.orderForm[key],
       });
     }
     let loading = <Spinner />;
@@ -213,4 +119,20 @@ export class ContactData extends Component {
   }
 }
 
-export default ContactData;
+const mapStateToProps = (state) => {
+  return {
+    ingridients: state.ing.ingridients,
+    totalPrice: state.ing.totalPrice,
+    orderForm: state.form.orderForm,
+  };
+};
+
+const mapDispatchToProps = (dispatch) => {
+  return {
+    anOrderForm: (formData) => {
+      dispatch({ type: actionTypes.UPDATED_ORDER_FORM, formData: formData });
+    },
+  };
+};
+
+export default connect(mapStateToProps, mapDispatchToProps)(ContactData);
